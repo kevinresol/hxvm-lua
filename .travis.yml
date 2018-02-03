@@ -9,7 +9,7 @@ os:
   - osx
 
 install:
-  - yarn global add lix.pm haxeshim
+  - npm install -g lix.pm haxeshim
   - lix download
 
 script:
