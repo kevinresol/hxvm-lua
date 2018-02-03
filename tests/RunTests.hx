@@ -87,6 +87,7 @@ class RunTests {
 		asserts.assert(compare(Success(1), lua.run('return foo.a')));
 		asserts.assert(compare(Success('2'), lua.run('return foo.b')));
 		asserts.assert(compare(Success(3), lua.run('return foo.add(1, 2)')));
+		asserts.assert(compare(Success(1), lua.run('return foo.val()'))); // this make sure this-binding in js is working
 		return asserts.done();
 	}
 	
@@ -107,12 +108,15 @@ class RunTests {
 			case Failure(e): asserts.fail(e);
 		}
 		
+		
+		
 		return asserts.done();
 	}
 	
 	public function lib() {
-		lua.loadLibs(['math']);
+		// lua.loadLibs(['math']); // all stdlib loaded by default
 		asserts.assert(compare(Success(3), lua.run('return math.floor(3.6)')));
+		asserts.assert(compare(Success('a'), lua.run('local t = {a = 1}; for k,v in pairs(t) do return k end')));
 		return asserts.done();
 	}
 	
@@ -129,4 +133,5 @@ class Foo {
 	var b = '2';
 	public function new() {}
 	public function add(a:Int, b:Int) return a + b;
+	public function val() return a;
 }

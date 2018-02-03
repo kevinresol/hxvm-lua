@@ -26,6 +26,7 @@ class Lua {
 	
 	public function new() {
 		l = luaL_newstate();
+		luaL_openlibs(l);
 	}
 	
 	public function run(s:String, ?globals:DynamicAccess<Any>):Outcome<Any, String> {
@@ -99,7 +100,7 @@ class Lua {
 		l = null;
 	}
 	
-	static function toLuaValue(l, v:Any):Int {
+	static function toLuaValue(l, v:Any, ?o:Any):Int {
 		switch Type.typeof(v) {
 			case TNull: lua_pushnil(l);
 			case TBool: lua_pushboolean(l, v);
@@ -110,30 +111,32 @@ class Lua {
 				lua_createtable(l, arr.length, 0);
 				for(i in 0...arr.length) {
 					lua_pushnumber(l, i + 1); // 1-based
-					toLuaValue(l, arr[i]);
+					toLuaValue(l, arr[i], arr);
 					lua_settable(l, -3);
 				}
 			case TFunction:
 				#if cpp
 				lua_pushnumber(l, funcs.push(v) - 1); // FIXME: this seems to leak like hell, but I have no idea how to store the function reference properly
+				lua_pushcclosure(l, _callback, 1);
 				#else
+				lua_pushlightuserdata(l, o);
 				lua_pushlightuserdata(l, v);
+				lua_pushcclosure(l, callback, 2);
 				#end
-				lua_pushcclosure(l, #if cpp _callback #elseif js callback #end, 1);
 			case TObject:
 				
 				lua_newtable(l);
 				var obj:DynamicAccess<Any> = v;
 				for(key in obj.keys()) {
 					lua_pushstring(l, key);
-					toLuaValue(l, obj.get(key));
+					toLuaValue(l, obj.get(key), cast obj);
 					lua_settable(l, -3);
 				}
 			case TClass(_):
 				lua_newtable(l);
 				for(key in Type.getInstanceFields(Type.getClass(v))) {
 					lua_pushstring(l, key);
-					toLuaValue(l, Reflect.getProperty(v, key));
+					toLuaValue(l, Reflect.getProperty(v, key), v);
 					lua_settable(l, -3);
 				}
 			case t: throw 'TODO $t';
@@ -215,15 +218,16 @@ class Lua {
 	#if cpp static var _callback = cpp.Callable.fromStaticFunction(callback); #end
 	static function callback(l) {
 		var numArgs = lua_gettop(l);
-		var f = 
-			#if cpp
-			funcs[cast lua_tonumber(l, lua_upvalueindex(1))];
-			#else
-			lua_topointer(l, lua_upvalueindex(1));
-			#end
+		#if cpp
+			var o = null; // TODO
+			var f = funcs[cast lua_tonumber(l, lua_upvalueindex(1))];
+		#else
+			var o = lua_topointer(l, lua_upvalueindex(1));
+			var f = lua_topointer(l, lua_upvalueindex(2));
+		#end
 		var args = [];
 		for(i in 0...numArgs) args[i] = toHaxeValue(l, i + 1);
-		var result = Reflect.callMethod(null, f, args);
+		var result = Reflect.callMethod(o, f, args);
 		return toLuaValue(l, result);
 	}
 	
