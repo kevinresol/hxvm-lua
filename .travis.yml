@@ -1,23 +1,14 @@
 sudo: required
 dist: trusty
 
-language: haxe
+language: node_js
+node_js: 6
 
-os:
-  - linux
-  - osx
-  
-haxe:
-  - "3.4.0"
-  - development
-  
-matrix:
-  allow_failures:
-    - haxe: development
-    
 install:
-  - haxelib install travix
-  - haxelib run travix install
+  - yarn global add lix-pm haxeshim
+  - lix download
 
 script:
   - haxelib run travix cpp -lib linc_lua # -D mac
+  # - haxelib run travix js -lib hxjs-fengari
+  - haxelib run travix node -lib hxjs-fengari

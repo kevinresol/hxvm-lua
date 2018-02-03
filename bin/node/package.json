@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "fengari": "https://github.com/fengari-lua/fengari"
+  }
+}

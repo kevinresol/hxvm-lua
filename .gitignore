@@ -1,1 +1,4 @@
-bin
+bin/cpp
+bin/js
+bin/node/tests.js
+node_modules

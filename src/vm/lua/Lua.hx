@@ -1,6 +1,17 @@
 package vm.lua;
 
+#if linc_lua
 import vm.lua.Api.*;
+#end
+
+#if js
+import fengari.Fengari.*;
+import fengari.Lua.*;
+import fengari.Lauxlib.*;
+import fengari.Lualib.*;
+import fengari.State;
+#end
+
 import vm.lua.Macro.*;
 import haxe.DynamicAccess;
 
@@ -30,7 +41,7 @@ class Lua {
 			Success(v);
 			
 		} else {
-			var v = lua_tostring(l, -1);
+			var v:String = lua_tostring(l, -1);
 			lua_pop(l, 1);
 			Failure(v);
 		}
@@ -45,7 +56,7 @@ class Lua {
 			lua_pop(l, 1);
 			Success(result);
 		} else {
-			var v = lua_tostring(l, -1);
+			var v:String = lua_tostring(l, -1);
 			lua_pop(l, 1);
 			Failure(v);
 		}
@@ -53,18 +64,19 @@ class Lua {
 	
 	public function loadLibs(libs:Array<String>) {
 		for(lib in libs) {
-			var openf = switch lib {
-				case 'base': untyped __cpp__('luaopen_base');
-				case 'debug': untyped __cpp__('luaopen_debug');
-				case 'io': untyped __cpp__('luaopen_io');
-				case 'math': untyped __cpp__('luaopen_math');
-				case 'os': untyped __cpp__('luaopen_os');
-				case 'package': untyped __cpp__('luaopen_package');
-				case 'string': untyped __cpp__('luaopen_string');
-				case 'table': untyped __cpp__('luaopen_table');
-				case 'coroutine': untyped __cpp__('luaopen_coroutine');
-				case _: null;
-			}
+			var openf = 
+				switch lib {
+					case 'base': #if cpp untyped __cpp__('luaopen_base'); #else null; #end
+					case 'debug': #if cpp untyped __cpp__('luaopen_debug'); #else luaopen_debug; #end
+					case 'io': #if cpp untyped __cpp__('luaopen_io'); #else luaopen_io; #end
+					case 'math': #if cpp untyped __cpp__('luaopen_math'); #else luaopen_math; #end
+					case 'os': #if cpp untyped __cpp__('luaopen_os'); #else luaopen_os; #end
+					case 'package': #if cpp untyped __cpp__('luaopen_package'); #else luaopen_package; #end
+					case 'string': #if cpp untyped __cpp__('luaopen_string'); #else luaopen_string; #end
+					case 'table': #if cpp untyped __cpp__('luaopen_table'); #else luaopen_table; #end
+					case 'coroutine': #if cpp untyped __cpp__('luaopen_coroutine'); #else luaopen_coroutine; #end
+					case _: null;
+				}
 			if(openf != null) {
 				luaL_requiref(l, lib, openf, true);
 				lua_settop(l, 0);
@@ -92,7 +104,7 @@ class Lua {
 			case TNull: lua_pushnil(l);
 			case TBool: lua_pushboolean(l, v);
 			case TFloat | TInt: lua_pushnumber(l, v);
-			case TClass(String): lua_pushstring(l, v);
+			case TClass(String): lua_pushstring(l, (v:String));
 			case TObject if(Reflect.isObject(v)):
 				lua_newtable(l);
 				var obj:DynamicAccess<Any> = v;
@@ -107,6 +119,7 @@ class Lua {
 				for(i in 0...arr.length) {
 					lua_pushnumber(l, i + 1); // 1-based
 					toLuaValue(l, arr[i]);
+					lua_settable(l, -3);
 				}
 			case TFunction:
 				lua_pushnumber(l, funcs.push(v) - 1); // FIXME: this seems to leak like hell, but I have no idea how to store the function reference properly
@@ -168,7 +181,7 @@ class Lua {
 		}
 	}
 	
-	static var _callback = cpp.Callable.fromStaticFunction(callback);
+	static var _callback = #if cpp cpp.Callable.fromStaticFunction(callback) #else callback #end;
 	static function callback(l) {
 		var numArgs = lua_gettop(l);
 		var i:Int = cast lua_tonumber(l, lua_upvalueindex(1));
@@ -180,9 +193,9 @@ class Lua {
 	
 	static function printStack(l, depth:Int) {
 		for(i in 1...depth + 1) {
-			var t = lua_typename(l, lua_type(l, -i));
+			var t:String = lua_typename(l, lua_type(l, -i));
 			var v = toHaxeValue(l, -i);
-			trace(t, v);
+			trace(-i, t, v);
 		}
 	}
 }

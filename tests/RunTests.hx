@@ -68,11 +68,15 @@ class RunTests {
 		asserts.assert(compare(Success({a:1, b:'2', c: {d: true}}), lua.run('return {a = 1, b = "2", c = {d = true}}')));
 		asserts.assert(compare(Success({}), lua.run('return obj', {obj: {}})));
 		asserts.assert(compare(Success({a:1, b:'2', c: {d: true}}), lua.run('return obj', {obj: {a:1, b:'2', c: {d: true}}})));
+		asserts.assert(compare(Success(1), lua.run('return obj.a', {obj: {a:1, b:'2', c: {d: true}}})));
+		asserts.assert(compare(Success('2'), lua.run('return obj.b', {obj: {a:1, b:'2', c: {d: true}}})));
+		asserts.assert(compare(Success(true), lua.run('return obj.c.d', {obj: {a:1, b:'2', c: {d: true}}})));
 		return asserts.done();
 	}
 	
 	public function array() {
 		asserts.assert(compare(Success([0, 1, 2]), lua.run('return {0, 1, 2}')));
+		asserts.assert(compare(Success(0), lua.run('return arr[1]', {arr: [0, 1, 2]})));
 		asserts.assert(compare(Success([0, 1, 2]), lua.run('return arr', {arr: [0, 1, 2]})));
 		return asserts.done();
 	}
