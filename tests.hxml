@@ -1,0 +1,5 @@
+-cp tests
+-main RunTests
+-dce full
+-lib tink_unittest
+-lib deep_equal

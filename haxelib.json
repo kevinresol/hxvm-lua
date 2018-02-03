@@ -1,0 +1,15 @@
+{
+  "name": "hxvm-lua",
+  "license": "MIT",
+  "tags": [
+    "vm",
+    "lua"
+  ],
+  "classPath": "src",
+  "contributors": [
+    "kevinresol"
+  ],
+  "releasenote": "initial release",
+  "version": "0.0.0",
+  "dependencies": {}
+}

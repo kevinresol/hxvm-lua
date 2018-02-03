@@ -1,0 +1,5 @@
+# @run: haxelib run-dir hxcpp ${HAXESHIM_LIBCACHE}/hxcpp/3.4.0/github/3a8995f3b28a85c90231eae7fb0b4df79e4ad72c
+# @post-install: haxe --cwd ${HAXESHIM_LIBCACHE}/hxcpp/3.4.0/github/3a8995f3b28a85c90231eae7fb0b4df79e4ad72c/tools/hxcpp compile.hxml
+# @install: lix --silent download "https://github.com/lix-pm/hxcpp/archive/3a8995f3b28a85c90231eae7fb0b4df79e4ad72c.tar.gz" into hxcpp/3.4.0/github/3a8995f3b28a85c90231eae7fb0b4df79e4ad72c
+-D hxcpp=3.4.0
+-cp ${HAXESHIM_LIBCACHE}/hxcpp/3.4.0/github/3a8995f3b28a85c90231eae7fb0b4df79e4ad72c/
