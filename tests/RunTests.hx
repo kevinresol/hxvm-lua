@@ -15,9 +15,21 @@ class RunTests {
 		])).handle(Runner.exit);
 	}
 	
-	var lua = new vm.lua.Lua();
+	var lua:vm.lua.Lua;
 	
 	function new() {}
+	
+	@:before
+	public function before() {
+		lua = new vm.lua.Lua();
+		return Noise;
+	}
+	
+	@:after
+	public function after() {
+		lua.destroy();
+		return Noise;
+	}
 	
 	public function version() {
 		asserts.assert(lua.version == 'Lua 5.3');
@@ -84,6 +96,12 @@ class RunTests {
 	public function lib() {
 		lua.loadLibs(['math']);
 		asserts.assert(compare(Success(3), lua.run('return math.floor(3.6)')));
+		return asserts.done();
+	}
+	
+	public function err() {
+		asserts.assert(!lua.run('invalid').isSuccess());
+		asserts.assert(!lua.call('invalid', []).isSuccess());
 		return asserts.done();
 	}
 }

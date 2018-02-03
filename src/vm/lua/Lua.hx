@@ -82,6 +82,11 @@ class Lua {
 		lua_setglobal(l, name);
 	}
 	
+	public function destroy() {
+		lua_close(l);
+		l = null;
+	}
+	
 	static function toLuaValue(l, v:Any):Int {
 		switch Type.typeof(v) {
 			case TNull: lua_pushnil(l);

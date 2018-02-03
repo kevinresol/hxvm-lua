@@ -1,3 +1,3 @@
-# @install: lix --silent download "https://github.com/kevinresol/linc_lua/archive/adae591e42afddcb1c7e5af5b9b7f082f61ffa2c.tar.gz" into linc_lua/0.0.0/github/adae591e42afddcb1c7e5af5b9b7f082f61ffa2c
+# @install: lix --silent download "https://github.com/kevinresol/linc_lua/archive/bd344c557b97bb5c45d7c203e6d4b90c662982ab.tar.gz" into linc_lua/0.0.0/github/bd344c557b97bb5c45d7c203e6d4b90c662982ab
 -D linc_lua=0.0.0
--cp ${HAXESHIM_LIBCACHE}/linc_lua/0.0.0/github/adae591e42afddcb1c7e5af5b9b7f082f61ffa2c/
+-cp ${HAXESHIM_LIBCACHE}/linc_lua/0.0.0/github/bd344c557b97bb5c45d7c203e6d4b90c662982ab/
