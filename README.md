@@ -13,25 +13,26 @@ Embed the Lua scripting engine into your Haxe application
 ### Target C++
 
 1. Install haxelib: [linc_lua](https://github.com/kevinresol/linc_lua)
+2. Add `-lib linc_lua` to your haxe build
 
-### Target JS (browser)
+### Target JS
 
 1. Install haxelib: [hxjs-fengari](https://github.com/kevinresol/hxjs-fengari)
 
-Then you can choose to either build a standalone js file or `require` it in your project.
-If you choose the latter, follow the steps for node.js
+From here you can choose to either build a standalone js file or `require` it in your project.
 
-##### Using a standalone js file for Fengari
+##### For browser without bundlers
 
 1. Git clone https://github.com/fengari-lua/fengari
 1. Run `yarn && yarn run build`
 1. Add the output file (`dist/fengari.js`) to your project using a `<script>` tag in html
-1. Add `-D fengari_global` to your haxe build arguments
+1. Add `-lib hxjs-fengari -D fengari_global` to your haxe build
 
-### Target Node.js
+#### For Node.js or browser js with bundlers
 
 1. Install haxelib: [hxjs-fengari](https://github.com/kevinresol/hxjs-fengari)
-2. `yarn add https://github.com/fengari-lua/fengari`
+1. Add `-lib hxjs-fengari` to your haxe build
+1. `yarn add https://github.com/fengari-lua/fengari`
 
 ## Usage
 
