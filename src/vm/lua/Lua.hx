@@ -15,7 +15,7 @@ import fengari.State;
 import vm.lua.Macro.*;
 import haxe.DynamicAccess;
 
-using tink.CoreApi;
+import tink.CoreApi;
 
 @:headerCode('#include "linc_lua.h"')
 class Lua {
@@ -29,37 +29,43 @@ class Lua {
 		luaL_openlibs(l);
 	}
 	
-	public function run(s:String, ?globals:DynamicAccess<Any>):Outcome<Any, String> {
+	public function tryRun(s, ?g)
+		return Error.catchExceptions(run.bind(s, g));
+	
+	public function tryCall(n, a)
+		return Error.catchExceptions(call.bind(n, a));
+	
+	public function run(script:String, ?globals:DynamicAccess<Any>):Any {
 		if(globals != null) for(key in globals.keys()) setGlobalVar(key, globals.get(key));
 		
-		return if(luaL_dostring(l, s) == OK) {
+		if(luaL_dostring(l, script) == OK) {
 			var lua_v:Int;
 			var v:Any = null;
 			while((lua_v = lua_gettop(l)) != 0) {
 				v = toHaxeValue(l, lua_v);
 				lua_pop(l, 1);
 			}
-			Success(v);
+			return v;
 			
 		} else {
 			var v:String = lua_tostring(l, -1);
 			lua_pop(l, 1);
-			Failure(v);
+			throw v;
 		}
 	}
 	
-	public function call(name:String, args:Array<Any>):Outcome<Any, String> {
+	public function call(name:String, args:Array<Any>):Any {
 		lua_getglobal(l, name);
 		for(arg in args) toLuaValue(l, arg);
 		
-		return if(lua_pcall(l, args.length, 1, 0) == OK) {
+		if(lua_pcall(l, args.length, 1, 0) == OK) {
 			var result = toHaxeValue(l, -1);
 			lua_pop(l, 1);
-			Success(result);
+			return result;
 		} else {
 			var v:String = lua_tostring(l, -1);
 			lua_pop(l, 1);
-			Failure(v);
+			throw v;
 		}
 	}
 	
