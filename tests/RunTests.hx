@@ -81,10 +81,18 @@ class RunTests {
 		return asserts.done();
 	}
 	
+	public function inst() {
+		var foo = new Foo();
+		lua.setGlobalVar('foo', foo);
+		asserts.assert(compare(Success(1), lua.run('return foo.a')));
+		asserts.assert(compare(Success('2'), lua.run('return foo.b')));
+		asserts.assert(compare(Success(3), lua.run('return foo.add(1, 2)')));
+		return asserts.done();
+	}
+	
 	public function func() {
 		function add(a:Int, b:Int) return a + b;
 		function mul(a:Int, b:Int) return a * b;
-		
 		
 		asserts.assert(compare(Success(true), lua.run('return f()', {f: function() return true})));
 		asserts.assert(compare(Success(3), lua.run('return add(1, 2)', {add: add})));
@@ -93,6 +101,11 @@ class RunTests {
 		
 		lua.run('function add(a, b) \n return a + b \n end');
 		asserts.assert(compare(Success(3), lua.call('add', [1, 2])));
+		
+		switch lua.run('function sub(a, b) return a - b end return sub') {
+			case Success(sub): asserts.assert((cast sub)(5, 2) == 3);
+			case Failure(e): asserts.fail(e);
+		}
 		
 		return asserts.done();
 	}
@@ -108,4 +121,12 @@ class RunTests {
 		asserts.assert(!lua.call('invalid', []).isSuccess());
 		return asserts.done();
 	}
+}
+
+@:keep
+class Foo {
+	var a = 1;
+	var b = '2';
+	public function new() {}
+	public function add(a:Int, b:Int) return a + b;
 }

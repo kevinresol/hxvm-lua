@@ -105,14 +105,6 @@ class Lua {
 			case TBool: lua_pushboolean(l, v);
 			case TFloat | TInt: lua_pushnumber(l, v);
 			case TClass(String): lua_pushstring(l, (v:String));
-			case TObject if(Reflect.isObject(v)):
-				lua_newtable(l);
-				var obj:DynamicAccess<Any> = v;
-				for(key in obj.keys()) {
-					lua_pushstring(l, key);
-					toLuaValue(l, obj.get(key));
-					lua_settable(l, -3);
-				}
 			case TClass(Array):
 				var arr:Array<Any> = v;
 				lua_createtable(l, arr.length, 0);
@@ -128,7 +120,23 @@ class Lua {
 				lua_pushlightuserdata(l, v);
 				#end
 				lua_pushcclosure(l, #if cpp _callback #elseif js callback #end, 1);
-			case _: throw 'TODO';
+			case TObject:
+				
+				lua_newtable(l);
+				var obj:DynamicAccess<Any> = v;
+				for(key in obj.keys()) {
+					lua_pushstring(l, key);
+					toLuaValue(l, obj.get(key));
+					lua_settable(l, -3);
+				}
+			case TClass(_):
+				lua_newtable(l);
+				for(key in Type.getInstanceFields(Type.getClass(v))) {
+					lua_pushstring(l, key);
+					toLuaValue(l, Reflect.getProperty(v, key));
+					lua_settable(l, -3);
+				}
+			case t: throw 'TODO $t';
 		}
 		return 1;
 	}
@@ -140,7 +148,26 @@ class Lua {
 			case t if (t == TTABLE): toHaxeObj(l, i);
 			case t if (t == TSTRING): lua_tostring(l, i);
 			case t if (t == TBOOLEAN): lua_toboolean(l, i);
-			case t if (t == TFUNCTION): throw 'TFUNCTION not supported';
+			case t if (t == TFUNCTION): 
+				switch lua_tocfunction(l, i) {
+					case null: 
+						var ref = luaL_ref(l, REGISTRYINDEX);
+						lua_pushnil(l); // luaL_ref pops the stack, we fill it again
+						Reflect.makeVarArgs(function(args) {
+							lua_rawgeti(l, REGISTRYINDEX, ref);
+							for(arg in args) toLuaValue(l, arg);
+							if(lua_pcall(l, args.length, 1, 0) == OK) {
+								var result = toHaxeValue(l, -1);
+								lua_pop(l, 1);
+								return result;
+							} else {
+								var v:String = lua_tostring(l, -1);
+								lua_pop(l, 1);
+								throw v;
+							}
+						});
+					case f: throw "CFUNCTION not supported";
+				}
 			case t if (t == TUSERDATA): throw 'TUSERDATA not supported';
 			case t if (t == TTHREAD): throw 'TTHREAD not supported';
 			case t if (t == TLIGHTUSERDATA): throw 'TLIGHTUSERDATA not supported';
