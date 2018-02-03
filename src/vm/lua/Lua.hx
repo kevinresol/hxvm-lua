@@ -66,15 +66,15 @@ class Lua {
 		for(lib in libs) {
 			var openf = 
 				switch lib {
-					case 'base': #if cpp untyped __cpp__('luaopen_base'); #else null; #end
-					case 'debug': #if cpp untyped __cpp__('luaopen_debug'); #else luaopen_debug; #end
-					case 'io': #if cpp untyped __cpp__('luaopen_io'); #else luaopen_io; #end
-					case 'math': #if cpp untyped __cpp__('luaopen_math'); #else luaopen_math; #end
-					case 'os': #if cpp untyped __cpp__('luaopen_os'); #else luaopen_os; #end
-					case 'package': #if cpp untyped __cpp__('luaopen_package'); #else luaopen_package; #end
-					case 'string': #if cpp untyped __cpp__('luaopen_string'); #else luaopen_string; #end
-					case 'table': #if cpp untyped __cpp__('luaopen_table'); #else luaopen_table; #end
-					case 'coroutine': #if cpp untyped __cpp__('luaopen_coroutine'); #else luaopen_coroutine; #end
+					case 'base': luaopen_base;
+					case 'debug': luaopen_debug;
+					case 'io': luaopen_io;
+					case 'math': luaopen_math;
+					case 'os': luaopen_os;
+					case 'package': luaopen_package;
+					case 'string': luaopen_string;
+					case 'table': luaopen_table;
+					case 'coroutine': luaopen_coroutine;
 					case _: null;
 				}
 			if(openf != null) {
@@ -122,8 +122,12 @@ class Lua {
 					lua_settable(l, -3);
 				}
 			case TFunction:
+				#if cpp
 				lua_pushnumber(l, funcs.push(v) - 1); // FIXME: this seems to leak like hell, but I have no idea how to store the function reference properly
-				lua_pushcclosure(l, _callback, 1);
+				#else
+				lua_pushlightuserdata(l, v);
+				#end
+				lua_pushcclosure(l, #if cpp _callback #elseif js callback #end, 1);
 			case _: throw 'TODO';
 		}
 		return 1;
@@ -181,13 +185,18 @@ class Lua {
 		}
 	}
 	
-	static var _callback = #if cpp cpp.Callable.fromStaticFunction(callback) #else callback #end;
+	#if cpp static var _callback = cpp.Callable.fromStaticFunction(callback); #end
 	static function callback(l) {
 		var numArgs = lua_gettop(l);
-		var i:Int = cast lua_tonumber(l, lua_upvalueindex(1));
+		var f = 
+			#if cpp
+			funcs[cast lua_tonumber(l, lua_upvalueindex(1))];
+			#else
+			lua_topointer(l, lua_upvalueindex(1));
+			#end
 		var args = [];
 		for(i in 0...numArgs) args[i] = toHaxeValue(l, i + 1);
-		var result = Reflect.callMethod(null, funcs[i], args);
+		var result = Reflect.callMethod(null, f, args);
 		return toLuaValue(l, result);
 	}
 	

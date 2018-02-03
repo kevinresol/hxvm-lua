@@ -1,0 +1,23 @@
+{
+    "selectDescription": "Select build setting",
+    "items": [
+        {
+            "displayName": "▶︎ cpp",
+            "args": ["cpp", "-lib", "linc_lua"]
+        },
+        {
+            "displayName": "▶︎ node",
+            "args": ["node", "-lib", "hxjs-fengari"]
+        }
+    ],
+    "baseItem": {
+		"version": "2.0.0",
+		"command": "travix",
+		"problemMatcher": "$haxe",
+        "group": {
+            "kind": "build",
+            "isDefault": true
+        }
+	}
+
+}
