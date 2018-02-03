@@ -4,6 +4,10 @@ dist: trusty
 language: node_js
 node_js: 6
 
+os:
+  # - linux
+  - osx
+
 install:
   - yarn global add lix.pm haxeshim
   - lix download
