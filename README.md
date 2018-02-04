@@ -44,7 +44,7 @@ When targeting C++ we compile the Lua runtime from its C source code.
 
 ### Target JS
 
-When targeting JS we utilize Fengari, which is a reimplementation of the Lua runtime in pure JS (ES6).
+When targeting JS we utilize [Fengari](https://fengari.io/), which is the Lua VM written in pure JavaScript.
 
 1. Install haxelib: [hxjs-fengari](https://github.com/kevinresol/hxjs-fengari)
 
