@@ -40,36 +40,13 @@ class Lua {
 	
 	public function run(script:String, ?globals:DynamicAccess<Any>):Any {
 		if(globals != null) for(key in globals.keys()) setGlobalVar(key, globals.get(key));
-		
-		if(luaL_dostring(l, script) == OK) {
-			var lua_v:Int;
-			var v:Any = null;
-			while((lua_v = lua_gettop(l)) != 0) {
-				v = toHaxeValue(l, lua_v);
-				lua_pop(l, 1);
-			}
-			return v;
-			
-		} else {
-			var v:String = lua_tostring(l, -1);
-			lua_pop(l, 1);
-			throw v;
-		}
+		if(luaL_dostring(l, script) == OK) return getReturnValues(l) else throw getErrorMessage(l);
 	}
 	
 	public function call(name:String, args:Array<Any>):Any {
 		lua_getglobal(l, name);
 		for(arg in args) toLuaValue(l, arg);
-		
-		if(lua_pcall(l, args.length, 1, 0) == OK) {
-			var result = toHaxeValue(l, -1);
-			lua_pop(l, 1);
-			return result;
-		} else {
-			var v:String = lua_tostring(l, -1);
-			lua_pop(l, 1);
-			throw v;
-		}
+		if(lua_pcall(l, args.length, 1, 0) == OK) return getReturnValues(l) else throw getErrorMessage(l);
 	}
 	
 	public function loadLibs(libs:Array<String>) {
@@ -132,12 +109,11 @@ class Lua {
 				lua_pushnumber(l, funcs.push(v) - 1); // FIXME: this seems to leak like hell, but I have no idea how to store the function reference properly
 				lua_pushcclosure(l, _callback, 1);
 				#else
-				lua_pushlightuserdata(l, o);
+				lua_pushlightuserdata(l, o); // store the function context (js this)
 				lua_pushlightuserdata(l, v);
 				lua_pushcclosure(l, callback, 2);
 				#end
 			case TObject:
-				
 				lua_newtable(l);
 				var obj:DynamicAccess<Any> = v;
 				for(key in obj.keys()) {
@@ -152,7 +128,7 @@ class Lua {
 					toLuaValue(l, Reflect.getProperty(v, key), v);
 					lua_settable(l, -3);
 				}
-			case t: throw 'TODO $t';
+			case t: throw 'Cannot convert $t to Lua value';
 		}
 		return 1;
 	}
@@ -172,25 +148,13 @@ class Lua {
 						Reflect.makeVarArgs(function(args) {
 							lua_rawgeti(l, REGISTRYINDEX, ref);
 							for(arg in args) toLuaValue(l, arg);
-							if(lua_pcall(l, args.length, 1, 0) == OK) {
-								var lua_v:Int;
-								var v:Any = null;
-								while((lua_v = lua_gettop(l)) != 0) {
-									v = toHaxeValue(l, lua_v);
-									lua_pop(l, 1);
-								}
-								return v;
-							} else {
-								var v:String = lua_tostring(l, -1);
-								lua_pop(l, 1);
-								throw v;
-							}
+							if(lua_pcall(l, args.length, 1, 0) == OK) return getReturnValues(l) else throw getErrorMessage(l);
 						});
-					case f: throw "CFUNCTION not supported";
+					case f: throw 'Cannot convert CFUNCTION to Haxe value';
 				}
 			case t if (t == TTHREAD): new Thread(lua_tothread(l, i));
-			case t if (t == TUSERDATA): throw 'TUSERDATA not supported';
-			case t if (t == TLIGHTUSERDATA): throw 'TLIGHTUSERDATA not supported';
+			case t if (t == TUSERDATA): throw 'Cannot convert TUSERDATA to Haxe value';
+			case t if (t == TLIGHTUSERDATA): throw 'Cannot convert TLIGHTUSERDATA to Haxe value';
 			case t: throw 'unreachable ($t)';
 		}
 	}
@@ -255,6 +219,23 @@ class Lua {
 		return toLuaValue(l, result);
 	}
 	
+	static function getReturnValues(l) {
+		var lua_v:Int;
+		var v:Any = null;
+		while((lua_v = lua_gettop(l)) != 0) {
+			v = toHaxeValue(l, lua_v);
+			lua_pop(l, 1);
+		}
+		// returns the first value (in case of multi return) returned from the Lua function
+		return v;
+	}
+	
+	static function getErrorMessage(l) {
+		var v:String = lua_tostring(l, -1);
+		lua_pop(l, 1);
+		return v;
+	}
+	
 	static function printStack(l, depth:Int) {
 		for(i in 1...depth + 1) {
 			var t:String = lua_typename(l, lua_type(l, -i));
@@ -263,3 +244,21 @@ class Lua {
 		}
 	}
 }
+
+
+/**
+ *  
+ *  Stack is pushed downwards, i.e.:
+ *    Push: add element to the top
+ *    Pop: remove element from the top
+ *  
+ *  Visualization of the Stack:
+ *  
+ *  -- Top of stack, last (pushed) element, index -1, index n
+ *  --
+ *  --
+ *  --
+ *  --
+ *  -- Bottom of stack, first (pushed element), index 1, index -n
+ *  
+ */
