@@ -1,5 +1,9 @@
 package vm.lua;
 
+#if js
+import fengari.State;
+#end
+
 #if cpp
 @:headerCode('#include "linc_lua.h"')
 #end

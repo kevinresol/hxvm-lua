@@ -228,10 +228,11 @@ class Lua {
 		}
 	}
 	
-	#if cpp static var _callback = cpp.Callable.fromStaticFunction(callback_s); #end
-	static function callback_s(s:vm.lua.State.StateStar) {
-		return callback(cpp.Pointer.fromRaw(s));
-	}
+	#if cpp
+	static var _callback = cpp.Callable.fromStaticFunction(callback_s);
+	static function callback_s(s:vm.lua.State.StateStar) return callback(cpp.Pointer.fromRaw(s));
+	#end
+	
 	static function callback(l) {
 		var numArgs = lua_gettop(l);
 		#if cpp
