@@ -1,3 +1,3 @@
-# @install: lix --silent download "haxelib:deep_equal#0.3.0" into deep_equal/0.3.0/haxelib
+# @install: lix --silent download "https://github.com/kevinresol/deep_equal/archive/cde2facc7eec6145a80dcbba1d6b0d696121a8f5.tar.gz" into deep_equal/0.3.0/github/cde2facc7eec6145a80dcbba1d6b0d696121a8f5
 -D deep_equal=0.3.0
--cp ${HAXESHIM_LIBCACHE}/deep_equal/0.3.0/haxelib/src
+-cp ${HAXESHIM_LIBCACHE}/deep_equal/0.3.0/github/cde2facc7eec6145a80dcbba1d6b0d696121a8f5/src

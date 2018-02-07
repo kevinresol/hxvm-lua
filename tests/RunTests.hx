@@ -108,9 +108,22 @@ class RunTests {
 			case Failure(e): asserts.fail(e);
 		}
 		
-		
-		
 		return asserts.done();
+	}
+	
+	
+	public function thread() {
+		asserts.assert(compare(Success(new ClassInst(vm.lua.Thread)), lua.tryRun('return coroutine.create (function () print("co", coroutine.yield(1)) end)')));
+		
+		// hold a coroutine in haxe
+		switch lua.tryRun('return coroutine.create (function () print("co", coroutine.yield(1)) end)') {
+			case Success(co):
+				asserts.assert(compare(Success({success: true, yield: 1}), lua.tryRun('success, yield = coroutine.resume(co); return {success = success, yield = yield}', {co: co})));
+			case Failure(e):
+				asserts.fail(e);
+		}
+		return asserts.done();
+		
 	}
 	
 	public function lib() {
@@ -134,4 +147,13 @@ class Foo {
 	public function new() {}
 	public function add(a:Int, b:Int) return a + b;
 	public function val() return a;
+}
+
+class ClassInst implements deepequal.CustomCompare {
+	var cls:Class<Dynamic>;
+	public function new(cls) 
+		this.cls = cls;
+	public function check(actual:Dynamic, compare:Dynamic->Dynamic->deepequal.Result):deepequal.Result {
+		return Type.getClass(actual) == cls ? Success(Noise) : Failure({message: 'Expected cls ${Type.getClassName(cls)}', path: []});
+	}
 }

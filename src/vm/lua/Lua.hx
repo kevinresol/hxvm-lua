@@ -12,12 +12,15 @@ import fengari.Lualib.*;
 import fengari.State;
 #end
 
+import vm.lua.Thread;
 import vm.lua.Macro.*;
 import haxe.DynamicAccess;
 
 import tink.CoreApi;
 
+#if cpp
 @:headerCode('#include "linc_lua.h"')
+#end
 class Lua {
 	public var version(default, never):String = VERSION;
 	
@@ -112,6 +115,10 @@ class Lua {
 			case TBool: lua_pushboolean(l, v);
 			case TFloat | TInt: lua_pushnumber(l, v);
 			case TClass(String): lua_pushstring(l, (v:String));
+			case TClass(Thread): 
+				var th = (v:Thread).ref;
+				lua_pushthread(th);
+				lua_xmove(th, l, 1);
 			case TClass(Array):
 				var arr:Array<Any> = v;
 				lua_createtable(l, arr.length, 0);
@@ -177,8 +184,8 @@ class Lua {
 						});
 					case f: throw "CFUNCTION not supported";
 				}
+			case t if (t == TTHREAD): new Thread(lua_tothread(l, i));
 			case t if (t == TUSERDATA): throw 'TUSERDATA not supported';
-			case t if (t == TTHREAD): throw 'TTHREAD not supported';
 			case t if (t == TLIGHTUSERDATA): throw 'TLIGHTUSERDATA not supported';
 			case t: throw 'unreachable ($t)';
 		}
@@ -221,7 +228,10 @@ class Lua {
 		}
 	}
 	
-	#if cpp static var _callback = cpp.Callable.fromStaticFunction(callback); #end
+	#if cpp static var _callback = cpp.Callable.fromStaticFunction(callback_s); #end
+	static function callback_s(s:vm.lua.State.StateStar) {
+		return callback(cpp.Pointer.fromRaw(s));
+	}
 	static function callback(l) {
 		var numArgs = lua_gettop(l);
 		#if cpp
