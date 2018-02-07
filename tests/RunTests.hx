@@ -95,18 +95,22 @@ class RunTests {
 		function add(a:Int, b:Int) return a + b;
 		function mul(a:Int, b:Int) return a * b;
 		
+		// call haxe function in lua
 		asserts.assert(compare(Success(true), lua.tryRun('return f()', {f: function() return true})));
 		asserts.assert(compare(Success(3), lua.tryRun('return add(1, 2)', {add: add})));
 		asserts.assert(compare(Success(12), lua.tryRun('return mul(3, 4)', {mul: mul})));
 		asserts.assert(compare(Success(15), lua.tryRun('return add(1, 2) + mul(3, 4)', {add: add, mul: mul})));
 		
-		lua.tryRun('function add(a, b) \n return a + b \n end');
+		// call lua function from haxe
+		lua.tryRun('function add(a, b) return a + b end');
 		asserts.assert(compare(Success(3), lua.tryCall('add', [1, 2])));
 		
+		// return lua function to haxe
 		switch lua.tryRun('function sub(a, b) return a - b end return sub') {
 			case Success(sub): asserts.assert((cast sub)(5, 2) == 3);
 			case Failure(e): asserts.fail(e);
 		}
+		
 		
 		return asserts.done();
 	}

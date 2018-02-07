@@ -173,9 +173,13 @@ class Lua {
 							lua_rawgeti(l, REGISTRYINDEX, ref);
 							for(arg in args) toLuaValue(l, arg);
 							if(lua_pcall(l, args.length, 1, 0) == OK) {
-								var result = toHaxeValue(l, -1);
-								lua_pop(l, 1);
-								return result;
+								var lua_v:Int;
+								var v:Any = null;
+								while((lua_v = lua_gettop(l)) != 0) {
+									v = toHaxeValue(l, lua_v);
+									lua_pop(l, 1);
+								}
+								return v;
 							} else {
 								var v:String = lua_tostring(l, -1);
 								lua_pop(l, 1);
