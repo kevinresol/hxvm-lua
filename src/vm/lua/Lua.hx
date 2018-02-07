@@ -118,7 +118,7 @@ class Lua {
 			case TClass(Thread): 
 				var th = (v:Thread).ref;
 				lua_pushthread(th);
-				lua_xmove(th, l, 1);
+				lua_xmove(th, l, 1); // deduced from luaB_cocreate in lcorolib.c, basically reverse the action done there
 			case TClass(Array):
 				var arr:Array<Any> = v;
 				lua_createtable(l, arr.length, 0);
