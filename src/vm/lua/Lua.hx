@@ -143,8 +143,8 @@ class Lua {
 			case t if (t == TFUNCTION): 
 				switch lua_tocfunction(l, i) {
 					case null: 
+						lua_pushvalue(l, i); // copy to the top of stack for luaL_ref
 						var ref = luaL_ref(l, REGISTRYINDEX);
-						lua_pushnil(l); // luaL_ref pops the stack, we fill it again
 						Reflect.makeVarArgs(function(args) {
 							lua_rawgeti(l, REGISTRYINDEX, ref);
 							for(arg in args) toLuaValue(l, arg);

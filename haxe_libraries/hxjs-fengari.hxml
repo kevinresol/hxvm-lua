@@ -1,3 +1,3 @@
-# @install: lix --silent download "https://github.com/kevinresol/hxjs-fengari/archive/d4e306a6cc2dae9485470de39af5f0a155ca6c50.tar.gz" into hxjs-fengari/0.0.0/github/d4e306a6cc2dae9485470de39af5f0a155ca6c50
+# @install: lix --silent download "https://github.com/kevinresol/hxjs-fengari/archive/1a985c29cdc9a244dedfac522679f4d4be09abc5.tar.gz" into hxjs-fengari/0.0.0/github/1a985c29cdc9a244dedfac522679f4d4be09abc5
 -D hxjs-fengari=0.0.0
--cp ${HAXESHIM_LIBCACHE}/hxjs-fengari/0.0.0/github/d4e306a6cc2dae9485470de39af5f0a155ca6c50/src
+-cp ${HAXESHIM_LIBCACHE}/hxjs-fengari/0.0.0/github/1a985c29cdc9a244dedfac522679f4d4be09abc5/src
