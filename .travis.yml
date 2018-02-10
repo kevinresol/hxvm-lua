@@ -9,7 +9,7 @@ os:
   - osx
 
 install:
-  - npm install -g lix.pm haxeshim
+  - npm install -g lix
   - lix download
 
 script:
