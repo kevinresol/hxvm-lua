@@ -6,7 +6,6 @@ environment:
 install:
   # Debug
   - call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
-  - ps: cl.exe
   # Get the latest stable version of Node.js or io.js
   - ps: Install-Product node $env:nodejs_version
   # Install modules
