@@ -4,7 +4,7 @@ Embed the Lua scripting engine into your Haxe application
 
 ## Supported targets
 
-- c++ (tested on macOS)
+- c++ (tested on macOS and windows)
 - js (tested on Chrome)
 - nodejs
 
