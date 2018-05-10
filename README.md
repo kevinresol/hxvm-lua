@@ -65,4 +65,4 @@ You can choose to either build a standalone js file for Fengari or `require` it 
 
 # TODO
 
-- [ ] Implement/test coroutines
+- [X] Implement/test coroutines
