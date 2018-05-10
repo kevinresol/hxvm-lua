@@ -59,9 +59,8 @@ From here you can choose to either build a standalone js file for Fengari or `re
 
 #### For Node.js or browser js with bundlers
 
-1. Install haxelib: [hxjs-fengari](https://github.com/kevinresol/hxjs-fengari)
-1. Add `-lib hxjs-fengari` to your haxe build
 1. `yarn add https://github.com/fengari-lua/fengari`
+1. Add `-lib hxjs-fengari` to your haxe build
 
 
 # TODO
