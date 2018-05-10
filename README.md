@@ -46,12 +46,11 @@ When targeting C++ we compile the Lua runtime from its C source code.
 
 When targeting JS we utilize [Fengari](https://fengari.io/), which is the Lua VM written in pure JavaScript.
 
-1. Install haxelib: [hxjs-fengari](https://github.com/kevinresol/hxjs-fengari)
-
-From here you can choose to either build a standalone js file for Fengari or `require` it in your project.
+You can choose to either build a standalone js file for Fengari or `require` it in your project.
 
 ##### For browser without bundlers
 
+1. Install haxelib: [hxjs-fengari](https://github.com/kevinresol/hxjs-fengari)
 1. Git clone https://github.com/fengari-lua/fengari
 1. Run `yarn && yarn run build`
 1. Add the output file (`dist/fengari.js`) to your project using a `<script>` tag in html
@@ -59,6 +58,7 @@ From here you can choose to either build a standalone js file for Fengari or `re
 
 #### For Node.js or browser js with bundlers
 
+1. Install haxelib: [hxjs-fengari](https://github.com/kevinresol/hxjs-fengari)
 1. `yarn add https://github.com/fengari-lua/fengari`
 1. Add `-lib hxjs-fengari` to your haxe build
 
