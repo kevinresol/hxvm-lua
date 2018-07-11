@@ -254,11 +254,11 @@ class Lua {
  *  
  *  Visualization of the Stack:
  *  
- *  -- Top of stack, last (pushed) element, index -1, index n
+ *  -- Top of stack, last pushed / newest element, index -1, index n
  *  --
  *  --
  *  --
  *  --
- *  -- Bottom of stack, first (pushed element), index 1, index -n
+ *  -- Bottom of stack, first pushed / oldest element, index 1, index -n
  *  
  */
