@@ -16,8 +16,6 @@ import vm.lua.Thread;
 import vm.lua.Macro.*;
 import haxe.DynamicAccess;
 
-import tink.CoreApi;
-
 #if cpp
 @:headerCode('#include "linc_lua.h"')
 #end
@@ -32,11 +30,13 @@ class Lua {
 		luaL_openlibs(l);
 	}
 	
+	#if tink_core
 	public function tryRun(s, ?g)
-		return Error.catchExceptions(run.bind(s, g));
+		return tink.core.Error.catchExceptions(run.bind(s, g));
 	
 	public function tryCall(n, a)
-		return Error.catchExceptions(call.bind(n, a));
+		return tink.core.Error.catchExceptions(call.bind(n, a));
+	#end
 	
 	public function run(script:String, ?globals:DynamicAccess<Any>):Any {
 		if(globals != null) for(key in globals.keys()) setGlobalVar(key, globals.get(key));
@@ -138,7 +138,7 @@ class Lua {
 			case t if (t == TNIL): null;
 			case t if (t == TNUMBER): lua_tonumber(l, i);
 			case t if (t == TTABLE): toHaxeObj(l, i);
-			case t if (t == TSTRING): lua_tostring(l, i);
+			case t if (t == TSTRING): (lua_tostring(l, i):String);
 			case t if (t == TBOOLEAN): lua_toboolean(l, i);
 			case t if (t == TFUNCTION): 
 				switch lua_tocfunction(l, i) {
