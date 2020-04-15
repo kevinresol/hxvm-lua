@@ -19,7 +19,7 @@ env:
 
   
 install:
-  - yarn global add lix
+  - npm -g i lix
   - lix install haxe $HAXE_VERSION
   - lix download
 
