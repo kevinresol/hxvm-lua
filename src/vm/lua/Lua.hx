@@ -81,6 +81,10 @@ class Lua {
 		lua_setglobal(l, name);
 	}
 	
+	public function getGlobalVar(name:String) {
+		return lua_getglobal(l, name);
+	}
+	
 	public function destroy() {
 		lua_close(l);
 		l = null;
