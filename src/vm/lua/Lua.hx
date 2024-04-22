@@ -51,7 +51,7 @@ class Lua {
 	
 	public function loadLibs(libs:Array<String>) {
 		for(lib in libs) {
-			var openf = 
+			var openf:Dynamic =
 				switch lib {
 					case 'base': luaopen_base;
 					case 'debug': luaopen_debug;
