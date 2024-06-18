@@ -125,6 +125,8 @@ class Lua {
 					toLuaValue(l, obj.get(key), cast obj);
 					lua_settable(l, -3);
 				}
+			case TClass(Lua):
+				lua_pushnil(l);
 			case TClass(_):
 				lua_newtable(l);
 				for(key in Type.getInstanceFields(Type.getClass(v))) {
