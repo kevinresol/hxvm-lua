@@ -56,3 +56,5 @@ jobs:
 
     - name: Run Test
       run: lix run travix ${{ matrix.target }}
+      env:
+        CI: "true"
