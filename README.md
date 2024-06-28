@@ -1,4 +1,4 @@
-# Haxe Lua Bindings [![Build Status](https://travis-ci.org/kevinresol/hxvm-lua.svg?branch=master)](https://travis-ci.org/kevinresol/hxvm-lua)
+# Haxe Lua Bindings
 
 Embed the Lua scripting engine into your Haxe application
 
