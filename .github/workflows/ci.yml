@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         haxe-version:
-          - 4.3.1
+          - 4.3.4
           - stable
           - nightly
         target:
