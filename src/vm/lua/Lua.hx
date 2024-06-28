@@ -51,7 +51,7 @@ class Lua {
 	
 	public function loadLibs(libs:Array<String>) {
 		for(lib in libs) {
-			var openf = 
+			var openf:Dynamic =
 				switch lib {
 					case 'base': luaopen_base;
 					case 'debug': luaopen_debug;
@@ -79,6 +79,10 @@ class Lua {
 	public function unsetGlobalVar(name:String) {
 		lua_pushnil(l);
 		lua_setglobal(l, name);
+	}
+	
+	public function getGlobalVar(name:String) {
+		return lua_getglobal(l, name);
 	}
 	
 	public function destroy() {
@@ -121,6 +125,8 @@ class Lua {
 					toLuaValue(l, obj.get(key), cast obj);
 					lua_settable(l, -3);
 				}
+			case TClass(Lua):
+				lua_pushnil(l);
 			case TClass(_):
 				lua_newtable(l);
 				for(key in Type.getInstanceFields(Type.getClass(v))) {
