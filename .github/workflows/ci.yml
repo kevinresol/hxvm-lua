@@ -50,6 +50,8 @@ jobs:
 
     - name: Install Lix
       uses: lix-pm/setup-lix@master
+      with:
+        lix-version: 15.12.1
 
     - name: Install Haxe
       run: lix install haxe ${{ matrix.haxe-version }}
