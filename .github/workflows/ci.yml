@@ -20,7 +20,7 @@ jobs:
           - stable
           - nightly
         target:
-          - cpp -lib linc_lua
+          - cpp -lib linc_lua -D NO_PRECOMPILED_HEADERS -D HXCPP_VERBOSE
           - node -lib hxjs-fengari
 
     steps:
