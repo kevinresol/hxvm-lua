@@ -60,7 +60,7 @@ jobs:
       run: lix download
 
     - name: Debug
-      run: pushd /root/haxe/haxe_libraries/hxcpp/4.3.0/github/01cfee282a9a783e10c5a7774a3baaf547e6b0a7/tools/hxcpp && haxe compile.hxml && popd
+      run: pushd ~/haxe/haxe_libraries/hxcpp/4.3.0/github/01cfee282a9a783e10c5a7774a3baaf547e6b0a7/tools/hxcpp && haxe compile.hxml && popd
 
     - name: Run Test
       run: lix run travix ${{ matrix.target }}
