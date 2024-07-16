@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+    branches: [ master ]
+
+env:
+  CI: "true"
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.haxe-version == 'nightly' }}
+    strategy:
+      matrix:
+        haxe-version:
+          - 4.3.4
+          - stable
+          - nightly
+        target:
+          - cpp -lib linc_lua
+          - node -lib hxjs-fengari
+
+    steps:
+    - name: Check Node.js Version
+      run: node -v
+      
+    - name: Check out repo
+      uses: actions/checkout@v3
+
+    - name: Get yarn cache directory path
+      id: yarn-cache-dir-path
+      run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+
+    - name: Cache Yarn
+      uses: actions/cache@v3
+      with:
+        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-yarn-
+
+    - name: Cache Haxe
+      uses: actions/cache@v3
+      with:
+        path: ${{ startsWith(runner.os, 'windows') && '%AppData%' || '~/haxe' }}
+        key: ${{ runner.os }}-haxe
+
+    - name: Install Lix
+      uses: lix-pm/setup-lix@master
+
+    - name: Install Haxe
+      run: lix install haxe ${{ matrix.haxe-version }}
+
+    - name: Install Haxe Libraries
+      run: lix download
+
+    - name: Run Test
+      run: lix run travix ${{ matrix.target }}
