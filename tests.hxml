@@ -3,3 +3,6 @@
 -dce full
 -lib tink_unittest
 -lib deep_equal
+
+-D no-deprecation-warnings
+-D HXCPP_VERBOSE
