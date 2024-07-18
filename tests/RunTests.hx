@@ -90,6 +90,13 @@ class RunTests {
 		asserts.assert(compare(Success(1), lua.tryRun('return foo.val()'))); // this make sure this-binding in js is working
 		return asserts.done();
 	}
+
+	public function get() {
+		lua.setGlobalVar('foo', new Foo());
+		var foo:Foo = lua.getGlobalVar('foo');
+		asserts.assert(compare(1, foo.val()));
+		return asserts.done();
+	}
 	
 	public function func() {
 		function add(a:Int, b:Int) return a + b;
