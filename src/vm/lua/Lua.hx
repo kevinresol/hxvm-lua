@@ -16,6 +16,12 @@ import vm.lua.Thread;
 import vm.lua.Macro.*;
 import haxe.DynamicAccess;
 
+enum BadConversionBehavior {
+	Silent;
+	Warn;
+	Throw;
+}
+
 #if cpp
 @:headerCode('#include "linc_lua.h"')
 #end
@@ -125,8 +131,6 @@ class Lua {
 					toLuaValue(l, obj.get(key), cast obj);
 					lua_settable(l, -3);
 				}
-			case TClass(Lua):
-				lua_pushnil(l);
 			case TClass(_):
 				lua_newtable(l);
 				for(key in Type.getInstanceFields(Type.getClass(v))) {
@@ -134,11 +138,37 @@ class Lua {
 					toLuaValue(l, Reflect.getProperty(v, key), v);
 					lua_settable(l, -3);
 				}
-			case t: throw 'Cannot convert $t to Lua value';
+			case t: pushNilOrThrow(l, 'Cannot convert $t to Lua value');
 		}
 		return 1;
 	}
 	
+	public static var badConversionBehavior(default, default):BadConversionBehavior = Warn;
+	
+	static function returnNullOrThrow(message:String) {
+		switch (badConversionBehavior) {
+			case Silent:
+				return null;
+			case Warn:
+				trace('Warning: $message');
+				return null;
+			case Throw:
+				throw message;
+		}
+	}
+
+	static function pushNilOrThrow(l, message:String) {
+		switch (badConversionBehavior) {
+			case Silent:
+				lua_pushnil(l);
+			case Warn:
+				trace('Warning: $message');
+				lua_pushnil(l);
+			case Throw:
+				throw message;
+		}
+	}
+
 	static function toHaxeValue(l, i:Int):Any {
 		return switch lua_type(l, i) {
 			case t if (t == TNIL): null;
@@ -156,12 +186,12 @@ class Lua {
 							for(arg in args) toLuaValue(l, arg);
 							if(lua_pcall(l, args.length, 1, 0) == OK) return getReturnValues(l) else throw getErrorMessage(l);
 						});
-					case f: throw 'Cannot convert CFUNCTION to Haxe value';
+					case f: returnNullOrThrow('Cannot convert CFUNCTION to Haxe value');
 				}
 			case t if (t == TTHREAD): new Thread(lua_tothread(l, i));
-			case t if (t == TUSERDATA): throw 'Cannot convert TUSERDATA to Haxe value';
-			case t if (t == TLIGHTUSERDATA): throw 'Cannot convert TLIGHTUSERDATA to Haxe value';
-			case t: throw 'unreachable ($t)';
+			case t if (t == TUSERDATA): returnNullOrThrow('Cannot convert TUSERDATA to Haxe value');
+			case t if (t == TLIGHTUSERDATA): returnNullOrThrow('Cannot convert TLIGHTUSERDATA to Haxe value');
+			case t: returnNullOrThrow('unreachable ($t)');
 		}
 	}
 	
