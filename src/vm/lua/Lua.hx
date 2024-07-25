@@ -87,8 +87,11 @@ class Lua {
 		lua_setglobal(l, name);
 	}
 	
-	public function getGlobalVar(name:String) {
-		return lua_getglobal(l, name);
+	public function getGlobalVar(name:String):Any {
+		lua_getglobal(l, name);
+		var v = toHaxeValue(l, -1);
+		lua_pop(l, -1);
+		return v;
 	}
 	
 	public function destroy() {

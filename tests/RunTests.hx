@@ -90,6 +90,14 @@ class RunTests {
 		asserts.assert(compare(Success(1), lua.tryRun('return foo.val()'))); // this make sure this-binding in js is working
 		return asserts.done();
 	}
+
+	public function get() {
+		vm.lua.Lua.badConversionBehavior = Warn;
+		lua.setGlobalVar('foo', new Foo());
+		var foo:{a:Int} = lua.getGlobalVar('foo');
+		asserts.assert(compare(1, foo.a));
+		return asserts.done();
+	}
 	
 	public function func() {
 		function add(a:Int, b:Int) return a + b;
@@ -146,8 +154,8 @@ class RunTests {
 
 @:keep
 class Foo {
-	var a = 1;
-	var b = '2';
+	public var a = 1;
+	public var b = '2';
 	public function new() {}
 	public function add(a:Int, b:Int) return a + b;
 	public function val() return a;
