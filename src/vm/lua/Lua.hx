@@ -15,6 +15,7 @@ import fengari.State;
 import vm.lua.Thread;
 import vm.lua.Macro.*;
 import haxe.DynamicAccess;
+import haxe.Int64;
 
 enum BadConversionBehavior {
 	Silent;
