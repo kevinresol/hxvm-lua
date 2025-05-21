@@ -180,7 +180,16 @@ class Lua {
 	static function toHaxeValue(l, i:Int):Any {
 		return switch lua_type(l, i) {
 			case t if (t == TNIL): null;
-			case t if (t == TNUMBER): lua_tonumber(l, i);
+			case t if (t == TNUMBER):
+			if(lua_isinteger(l, i)) {
+				var val = (lua_tointeger(l, i):Int64);
+				if (val <= 2147483647 && val >= -2147483648)
+					Int64.toInt(val);
+				else
+					val;
+			}else{
+				lua_tonumber(l, i);
+			}
 			case t if (t == TTABLE): toHaxeObj(l, i);
 			case t if (t == TSTRING): (lua_tostring(l, i):String);
 			case t if (t == TBOOLEAN): lua_toboolean(l, i);
