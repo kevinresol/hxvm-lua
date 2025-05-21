@@ -135,11 +135,16 @@ class Lua {
 					lua_settable(l, -3);
 				}
 			case TClass(_):
-				lua_newtable(l);
-				for(key in Type.getInstanceFields(Type.getClass(v))) {
-					lua_pushstring(l, key);
-					toLuaValue(l, Reflect.getProperty(v, key), v);
-					lua_settable(l, -3);
+				if(haxe.Int64.isInt64(v))
+				{
+					lua_pushinteger(l, v);
+				}else{
+					lua_newtable(l);
+					for(key in Type.getInstanceFields(Type.getClass(v))) {
+						lua_pushstring(l, key);
+						toLuaValue(l, Reflect.getProperty(v, key), v);
+						lua_settable(l, -3);
+					}
 				}
 			case t: pushNilOrThrow(l, 'Cannot convert $t to Lua value');
 		}
