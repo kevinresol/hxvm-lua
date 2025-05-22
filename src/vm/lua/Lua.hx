@@ -15,6 +15,7 @@ import fengari.State;
 import vm.lua.Thread;
 import vm.lua.Macro.*;
 import haxe.DynamicAccess;
+import haxe.Int64;
 
 enum BadConversionBehavior {
 	Silent;
@@ -135,11 +136,16 @@ class Lua {
 					lua_settable(l, -3);
 				}
 			case TClass(_):
-				lua_newtable(l);
-				for(key in Type.getInstanceFields(Type.getClass(v))) {
-					lua_pushstring(l, key);
-					toLuaValue(l, Reflect.getProperty(v, key), v);
-					lua_settable(l, -3);
+				if(haxe.Int64.isInt64(v))
+				{
+					lua_pushinteger(l, v);
+				}else{
+					lua_newtable(l);
+					for(key in Type.getInstanceFields(Type.getClass(v))) {
+						lua_pushstring(l, key);
+						toLuaValue(l, Reflect.getProperty(v, key), v);
+						lua_settable(l, -3);
+					}
 				}
 			case t: pushNilOrThrow(l, 'Cannot convert $t to Lua value');
 		}
@@ -175,7 +181,16 @@ class Lua {
 	static function toHaxeValue(l, i:Int):Any {
 		return switch lua_type(l, i) {
 			case t if (t == TNIL): null;
-			case t if (t == TNUMBER): lua_tonumber(l, i);
+			case t if (t == TNUMBER):
+			if(lua_isinteger(l, i)) {
+				var val = (lua_tointeger(l, i):Int64);
+				if (val <= 2147483647 && val >= -2147483648)
+					Int64.toInt(val);
+				else
+					val;
+			}else{
+				lua_tonumber(l, i);
+			}
 			case t if (t == TTABLE): toHaxeObj(l, i);
 			case t if (t == TSTRING): (lua_tostring(l, i):String);
 			case t if (t == TBOOLEAN): lua_toboolean(l, i);
